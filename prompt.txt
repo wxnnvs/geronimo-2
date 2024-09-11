@@ -1,6 +1,0 @@
-write a simple remote shell script in go.
-the administrator has server.go, wich allows the admin to type in a command along with the client id. This command will be sent and executed by the client, the output is sent back and shown in the servers console.
-all clients get assigned a random 8 character numerical string as id
-its all windows targeted.
-the administrator can list all the clients by using the 'list' command
-the administrator can execute commands on a client using 'run <client_id> <command>'
