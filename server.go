@@ -4,6 +4,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"strings"
@@ -57,12 +58,14 @@ func main() {
 				}
 				fmt.Println("Client ID:", id)
 				// check if the client is still connected
-				err := conn.SetReadDeadline(time.Now())
-				if err != nil {
-					delete(clientMap, id)
-				} else {
-					conn.SetReadDeadline(time.Time{})
+				conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+				one := make([]byte, 1)
+				if _, err := conn.Read(one); err != nil {
+					if err == io.EOF || err == os.ErrDeadlineExceeded {
+						delete(clientMap, id)
+					}
 				}
+				conn.SetReadDeadline(time.Time{})
 			}
 			mu.Unlock()
 		} else if strings.HasPrefix(input, "run") {
