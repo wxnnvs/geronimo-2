@@ -53,15 +53,26 @@ func main() {
 			fmt.Print("\033[H\033[2J")
 		} else if input == "list" {
 			mu.Lock()
-			for id := range clientMap {
-				_, ok := clientMap[id]
-				if !ok {
+			defer mu.Unlock()
+
+			var activeClients []string
+			for id, conn := range clientMap {
+				if isClientConnected(conn) {
+					activeClients = append(activeClients, id)
+				} else {
+					// If client is no longer connected, remove it from the map
 					delete(clientMap, id)
-					continue
 				}
-				fmt.Println("Client ID:", id)
 			}
-			mu.Unlock()
+
+			if len(activeClients) == 0 {
+				fmt.Println("No active clients")
+			} else {
+				fmt.Println("Active clients:")
+				for _, id := range activeClients {
+					fmt.Println("Client ID:", id)
+				}
+			}
 		} else if strings.HasPrefix(input, "run") {
 			if len(input) < 4 {
 				fmt.Println("Usage: run <client_id> <command>")
@@ -124,4 +135,21 @@ func handleCommandResponse(conn net.Conn) {
 
 func generateClientID() string {
 	return fmt.Sprintf("%08d", time.Now().UnixNano()%100000000)
+}
+
+func isClientConnected(conn net.Conn) bool {
+	// Send a ping message to check if the client is still connected
+	_, err := conn.Write([]byte("PING\n"))
+	if err != nil {
+		return false
+	}
+
+	// Set a deadline to read the response
+	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	_, err = conn.Read(make([]byte, 4)) // Read only up to 4 bytes (response to PING)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
