@@ -50,6 +50,19 @@ func main() {
 		} else if input == "list" {
 			mu.Lock()
 			for id := range clientMap {
+				conn, ok := clientMap[id]
+				if !ok {
+					delete(clientMap, id)
+					continue
+				}
+				// check if the client is still connected
+				err := conn.SetDeadline(time.Now())
+				if err != nil {
+					delete(clientMap, id)
+					continue
+				} else {
+					conn.SetDeadline(time.Time{})
+				}
 				fmt.Println("Client ID:", id)
 			}
 			mu.Unlock()
@@ -97,11 +110,6 @@ func handleClient(conn net.Conn) {
 	for scanner.Scan() {
 		output := scanner.Text()
 		fmt.Printf(output)
-
-		// Check if the client is still connected
-		if _, err := conn.Write([]byte("ping\n")); err != nil {
-			break
-		}
 	}
 
 	mu.Lock()
