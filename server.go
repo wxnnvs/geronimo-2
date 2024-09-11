@@ -55,15 +55,14 @@ func main() {
 					delete(clientMap, id)
 					continue
 				}
+				fmt.Println("Client ID:", id)
 				// check if the client is still connected
 				err := conn.SetDeadline(time.Now())
 				if err != nil {
 					delete(clientMap, id)
-					continue
 				} else {
 					conn.SetDeadline(time.Time{})
 				}
-				fmt.Println("Client ID:", id)
 			}
 			mu.Unlock()
 		} else if strings.HasPrefix(input, "run") {
