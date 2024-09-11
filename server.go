@@ -57,11 +57,11 @@ func main() {
 				}
 				fmt.Println("Client ID:", id)
 				// check if the client is still connected
-				err := conn.SetDeadline(time.Now())
+				err := conn.SetReadDeadline(time.Now())
 				if err != nil {
 					delete(clientMap, id)
 				} else {
-					conn.SetDeadline(time.Time{})
+					conn.SetReadDeadline(time.Time{})
 				}
 			}
 			mu.Unlock()
