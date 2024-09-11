@@ -52,6 +52,7 @@ func main() {
 		} else if input == "clear" {
 			fmt.Print("\033[H\033[2J")
 		} else if input == "list" {
+			mu.Lock()
 			for id := range clientMap {
 				_, ok := clientMap[id]
 				if !ok {
