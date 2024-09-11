@@ -4,12 +4,15 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"net"
 	"os"
 	"strings"
 	"sync"
 	"time"
+)
+
+const (
+	FIONREAD = 0x541B
 )
 
 var (
@@ -49,23 +52,13 @@ func main() {
 		} else if input == "clear" {
 			fmt.Print("\033[H\033[2J")
 		} else if input == "list" {
-			mu.Lock()
 			for id := range clientMap {
-				conn, ok := clientMap[id]
+				_, ok := clientMap[id]
 				if !ok {
 					delete(clientMap, id)
 					continue
 				}
 				fmt.Println("Client ID:", id)
-				// check if the client is still connected
-				conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-				one := make([]byte, 1)
-				if _, err := conn.Read(one); err != nil {
-					if err == io.EOF || err == os.ErrDeadlineExceeded {
-						delete(clientMap, id)
-					}
-				}
-				conn.SetReadDeadline(time.Time{})
 			}
 			mu.Unlock()
 		} else if strings.HasPrefix(input, "run") {
