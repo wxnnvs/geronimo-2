@@ -13,7 +13,9 @@ To build this project, follow the steps below:
 5. Run `go build -ldflags="-H windowsgui" client.go`
 6. Run ``client.exe``
 
-That's it! You should now have remote command prompt access 
+That's it! You should now have remote command prompt access
+
+(The server has cross platform support, but the client is Windows only)
 
 ## Commands:
 ```
