@@ -77,6 +77,18 @@ func main() {
 
 			fmt.Fprintf(conn, command+"\n")
 			go handleCommandResponse(conn)
+		} else if input == "update" {
+			fmt.Println("Updating clients")
+			// Check all clients to see if they are still connected
+			mu.Lock()
+			for id, conn := range clientMap {
+				_, err := conn.Write([]byte("ping\n"))
+				if err != nil {
+					fmt.Println("Client disconnected:", id)
+					delete(clientMap, id)
+				}
+			}
+			mu.Unlock()
 		} else {
 			fmt.Println("Unknown command")
 		}
